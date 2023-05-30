@@ -23,44 +23,33 @@ struct Object;
 struct Value {
 
   std::vector<std::vector<std::string>> parents_;
-  std::string type_;
+  /* std::string type_; */
+  TokenType type_;
 
-  union {
-    std::string str_;
-    std::string num_;
-    std::string boolean_;
-    std::string null_;
+  std::string basic_;
 
-    std::unique_ptr<Object> obj_;
-    std::unique_ptr<Array> arr_;
-  };
+  std::unique_ptr<Object> obj_;
+  std::unique_ptr<Array> arr_;
+
+  /* union { */
+  /*   std::string str_; */
+  /*   std::string num_; */
+  /*   std::string boolean_; */
+  /*   std::string null_; */
+  /**/
+  /*   std::unique_ptr<Object> obj_; */
+  /*   std::unique_ptr<Array> arr_; */
+  /* }; */
 
   Value() {}
 
-  Value(std::vector<std::string> &parents, const std::string &type,
-        const std::string &basic)
-      : type_(type) {
+  Value(std::vector<std::string> &parents, const TokenType &type,
+        const std::string &basic);
 
-    parents_.emplace_back(parents);
-
-    if (type == "String" || type == "Key") {
-      new (&str_) std::string(basic);
-    }
-    if (type == "Number") {
-      new (&num_) std::string(basic);
-    }
-    if (type == "Boolean") {
-      new (&boolean_) std::string(basic);
-    }
-    if (type == "Null") {
-      new (&null_) std::string(basic);
-    }
-  }
-
-  Value(std::vector<std::string> &parents, const std::string &type,
+  Value(std::vector<std::string> &parents, const TokenType &type,
         const Object &object);
 
-  Value(std::vector<std::string> &parents, const std::string &type,
+  Value(std::vector<std::string> &parents, const TokenType &type,
         const Array &array);
 
   Value(const Value &value);

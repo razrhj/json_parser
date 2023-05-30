@@ -3,11 +3,34 @@
 #include <memory>
 #include <string>
 
-int main() {
-  std::unique_ptr<int> p(new int(5));
-  int x = *p;
+class A {
+public:
+  A();
+  A(A &&) = default;
+  A(const A &) = default;
+  A &operator=(A &&) = default;
+  A &operator=(const A &) = default;
+  ~A();
 
-  printf("x: %d, *p: %d\n", x, *p);
+  void func() {
+    a = 1;
+    printf("a = %d\n", a);
+  }
+
+private:
+  int a;
+};
+
+A::A() {}
+
+A::~A() {}
+
+int main() {
+  std::unique_ptr<A> aptr(new A());
+
+  A a = *aptr;
+
+  a.func();
 
   return 0;
 }
