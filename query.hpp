@@ -120,18 +120,17 @@ public:
   }
 
   void setStringsType(
-      const std::unordered_map<std::string, std::shared_ptr<json_data::Value>>
+      const std::unordered_map<std::string, std::unique_ptr<json_data::Value>>
           &strings_types) {
-    for (auto it = strings_types.begin(); it != strings_types.end(); ++it) {
 
-      if (it->second != nullptr)
-        strings_types_[it->first] = std::shared_ptr<json_data::Value>(
-            new json_data::Value(*(it->second)));
+    for (auto &[first, second] : strings_types) {
+      strings_types_[first] =
+          std::unique_ptr<json_data::Value>(new json_data::Value(*second));
     }
   }
 
 private:
-  std::unordered_map<std::string, std::shared_ptr<json_data::Value>>
+  std::unordered_map<std::string, std::unique_ptr<json_data::Value>>
       strings_types_;
 };
 

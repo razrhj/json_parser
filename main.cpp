@@ -19,15 +19,15 @@ int main() {
 
   assert(p.Start() == ReturnState::Success);
 
-  // Query q;
-  //
-  // q.setStringsType(p.getStringsTypes());
-  //
-  // if (q.IsBoolean("true")) {
-  //   for (auto &str : q.getBoolean("true")) {
-  //     printf("%s\n", str.c_str());
-  //   }
-  // }
+  Query q;
+
+  q.setStringsType(p.getStringsTypes());
+
+  if (q.IsBoolean("true")) {
+    for (auto &str : q.getBoolean("true")) {
+      printf("%s\n", str.c_str());
+    }
+  }
 
   return 0;
 }

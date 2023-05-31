@@ -167,24 +167,24 @@ ReturnState Parser::Object() {
 
       if (parents.back() == "Key") {
 
-        printf("parents:&&&&&&&&&");
-        for (auto &parent : parents) {
-          printf("->%s", parent.c_str());
-        }
-        printf("\n");
+        /* printf("parents:&&&&&&&&&"); */
+        /* for (auto &parent : parents) { */
+        /*   printf("->%s", parent.c_str()); */
+        /* } */
+        /* printf("\n"); */
 
-        /* strings_types_[obj]->parents_.back().pop_back(); */
+        strings_types_[obj]->parents_.back().pop_back();
 
         parents.pop_back();
-        const std::string &key = parents.back();
-
+        const std::string key = parents.back();
+        /* printf("key: %s\n", key.c_str()); */
         parents.pop_back();
         const std::string pre_obj = parents.back();
-
+        /* printf("pre_obj: %s\n", pre_obj.c_str()); */
         strings_types_[pre_obj]->obj_->kvs_[key] = *strings_types_[obj];
       }
-      if (parents.back() == "Array") {
-        const std::string &pre_arr = parents.back();
+      if (std::regex_match(parents.back(), array_match)) {
+        const std::string pre_arr = parents.back();
 
         strings_types_[pre_arr]->arr_->vals_.emplace_back(*strings_types_[obj]);
       }
@@ -213,24 +213,24 @@ ReturnState Parser::Object() {
 
         if (parents.back() == "Key") {
 
-          printf("parents:&&&&&&&&&");
-          for (auto &parent : parents) {
-            printf("->%s", parent.c_str());
-          }
-          printf("\n");
+          /* printf("parents:&&&&&&&&&"); */
+          /* for (auto &parent : parents) { */
+          /*   printf("->%s", parent.c_str()); */
+          /* } */
+          /* printf("\n"); */
 
-          /* strings_types_[obj]->parents_.back().pop_back(); */
+          strings_types_[obj]->parents_.back().pop_back();
 
           parents.pop_back();
-          const std::string &key = parents.back();
-
+          const std::string key = parents.back();
+          /* printf("key: %s\n", key.c_str()); */
           parents.pop_back();
           const std::string pre_obj = parents.back();
-
+          /* printf("pre_obj: %s\n", pre_obj.c_str()); */
           strings_types_[pre_obj]->obj_->kvs_[key] = *strings_types_[obj];
         }
-        if (parents.back() == "Array") {
-          const std::string &pre_arr = parents.back();
+        if (std::regex_match(parents.back(), array_match)) {
+          const std::string pre_arr = parents.back();
 
           strings_types_[pre_arr]->arr_->vals_.emplace_back(
               *strings_types_[obj]);
@@ -265,25 +265,26 @@ ReturnState Parser::Array() {
 
       if (parents.back() == "Key") {
 
-        printf("parents:&&&&&&&&&");
-        for (auto &parent : parents) {
-          printf("->%s", parent.c_str());
-        }
-        printf("\n");
+        /* printf("parents:&&&&&&&&&"); */
+        /* for (auto &parent : parents) { */
+        /*   printf("->%s", parent.c_str()); */
+        /* } */
+        /* printf("\n"); */
 
-        /* strings_types_[arr]->parents_.back().pop_back(); */
+        strings_types_[arr]->parents_.back().pop_back();
 
         parents.pop_back();
-        const std::string &key = parents.back();
+        const std::string key = parents.back();
+        /* printf("key: %s\n", key.c_str()); */
         parents.pop_back();
 
-        const std::string &pre_obj = parents.back();
-
+        const std::string pre_obj = parents.back();
+        /* printf("pre_obj: %s\n", pre_obj.c_str()); */
         strings_types_[pre_obj]->obj_->kvs_[key] = *strings_types_[arr];
       }
-      if (parents.back() == "Array") {
+      if (std::regex_match(parents.back(), array_match)) {
 
-        const std::string &pre_arr = parents.back();
+        const std::string pre_arr = parents.back();
 
         strings_types_[pre_arr]->arr_->vals_.emplace_back(*strings_types_[arr]);
       }
@@ -313,25 +314,26 @@ ReturnState Parser::Array() {
 
         if (parents.back() == "Key") {
 
-          printf("parents:&&&&&&&&&");
-          for (auto &parent : parents) {
-            printf("->%s", parent.c_str());
-          }
-          printf("\n");
+          /* printf("parents:&&&&&&&&&"); */
+          /* for (auto &parent : parents) { */
+          /*   printf("->%s", parent.c_str()); */
+          /* } */
+          /* printf("\n"); */
 
-          /* strings_types_[arr]->parents_.back().pop_back(); */
+          strings_types_[arr]->parents_.back().pop_back();
 
           parents.pop_back();
-          const std::string &key = parents.back();
+          const std::string key = parents.back();
+          /* printf("key: %s\n", key.c_str()); */
           parents.pop_back();
 
-          const std::string &pre_obj = parents.back();
-
+          const std::string pre_obj = parents.back();
+          /* printf("pre_obj: %s\n", pre_obj.c_str()); */
           strings_types_[pre_obj]->obj_->kvs_[key] = *strings_types_[arr];
         }
-        if (parents.back() == "Array") {
+        if (std::regex_match(parents.back(), array_match)) {
 
-          const std::string &pre_arr = parents.back();
+          const std::string pre_arr = parents.back();
 
           strings_types_[pre_arr]->arr_->vals_.emplace_back(
               *strings_types_[arr]);
@@ -386,28 +388,29 @@ ReturnState Parser::Number() {
 
     if (parents.back() == "Key") {
 
-      printf("parents:&&&&&&&&&");
-      for (auto &parent : parents) {
-        printf("->%s", parent.c_str());
-      }
-      printf("\n");
+      /* printf("parents:&&&&&&&&&"); */
+      /* for (auto &parent : parents) { */
+      /*   printf("->%s", parent.c_str()); */
+      /* } */
+      /* printf("\n"); */
 
-      /* strings_types_[token.token_]->parents_.back().pop_back(); */
+      strings_types_[token.token_]->parents_.back().pop_back();
 
       parents.pop_back();
-      std::string &key = parents.back();
+      std::string key = parents.back();
+      /* printf("key: %s\n", key.c_str()); */
       parents.pop_back();
 
-      std::string &pre_obj = parents.back();
-
+      std::string pre_obj = parents.back();
+      /* printf("pre_obj: %s\n", pre_obj.c_str()); */
       strings_types_[pre_obj]->obj_->kvs_[key] = *strings_types_[token.token_];
     }
 
-    if (parents.back() == "Array") {
+    if (std::regex_match(parents.back(), array_match)) {
 
       const std::string pre_arr = parents.back();
 
-      strings_types_[token.token_]->arr_->vals_.emplace_back(
+      strings_types_[pre_arr]->arr_->vals_.emplace_back(
           *strings_types_[token.token_]);
     }
 
@@ -440,28 +443,29 @@ ReturnState Parser::Boolean() {
 
     if (parents.back() == "Key") {
 
-      printf("parents:&&&&&&&&&");
-      for (auto &parent : parents) {
-        printf("->%s", parent.c_str());
-      }
-      printf("\n");
+      /* printf("parents:&&&&&&&&&"); */
+      /* for (auto &parent : parents) { */
+      /*   printf("->%s", parent.c_str()); */
+      /* } */
+      /* printf("\n"); */
 
-      /* strings_types_[token.token_]->parents_.back().pop_back(); */
+      strings_types_[token.token_]->parents_.back().pop_back();
 
       parents.pop_back();
-      std::string &key = parents.back();
+      std::string key = parents.back();
+      /* printf("key: %s\n", key.c_str()); */
       parents.pop_back();
 
-      std::string &pre_obj = parents.back();
-
+      std::string pre_obj = parents.back();
+      /* printf("pre_obj: %s\n", pre_obj.c_str()); */
       strings_types_[pre_obj]->obj_->kvs_[key] = *strings_types_[token.token_];
     }
 
-    if (parents.back() == "Array") {
+    if (std::regex_match(parents.back(), array_match)) {
 
       const std::string pre_arr = parents.back();
 
-      strings_types_[token.token_]->arr_->vals_.emplace_back(
+      strings_types_[pre_arr]->arr_->vals_.emplace_back(
           *strings_types_[token.token_]);
     }
 
@@ -494,27 +498,30 @@ ReturnState Parser::Null() {
 
     if (parents.back() == "Key") {
 
-      printf("parents:&&&&&&&&&");
-      for (auto &parent : parents) {
-        printf("->%s", parent.c_str());
-      }
-      printf("\n");
+      /* printf("parents:&&&&&&&&&"); */
+      /* for (auto &parent : parents) { */
+      /*   printf("->%s", parent.c_str()); */
+      /* } */
+      /* printf("\n"); */
 
-      /* strings_types_[token.token_]->parents_.back().pop_back(); */
+      strings_types_[token.token_]->parents_.back().pop_back();
 
       parents.pop_back();
-      std::string &key = parents.back();
+      std::string key = parents.back();
+      /* printf("key: %s\n", key.c_str()); */
       parents.pop_back();
-      std::string &pre_obj = parents.back();
-
+      std::string pre_obj = parents.back();
+      /* printf("pre_obj: %s\n", pre_obj.c_str()); */
       strings_types_[pre_obj]->obj_->kvs_[key] = *strings_types_[token.token_];
     }
 
-    if (parents.back() == "Array") {
+    if (std::regex_match(parents.back(), array_match)) {
 
       const std::string pre_arr = parents.back();
 
-      strings_types_[token.token_]->arr_->vals_.emplace_back(
+      /* printf("pre_arr: %s\n", pre_arr.c_str()); */
+
+      strings_types_[pre_arr]->arr_->vals_.emplace_back(
           *strings_types_[token.token_]);
     }
 
@@ -561,25 +568,29 @@ ReturnState Parser::String(const std::string caller) {
 
       if (parents.back() == "Key") {
 
-        printf("parents:&&&&&&&&&");
-        for (auto &parent : parents) {
-          printf("->%s", parent.c_str());
-        }
-        printf("\n");
+        /* printf("parents:&&&&&&&&&"); */
+        /* for (auto &parent : parents) { */
+        /*   printf("->%s", parent.c_str()); */
+        /* } */
+        /* printf("\n"); */
 
-        /* strings_types_[token.token_]->parents_.back().pop_back(); */
+        strings_types_[token.token_]->parents_.back().pop_back();
 
         parents.pop_back();
-        const std::string &key = parents.back();
+        const std::string key = parents.back();
+        /* printf("key: %s\n", key.c_str()); */
         parents.pop_back();
 
-        const std::string &pre_obj = parents.back();
-
+        const std::string pre_obj = parents.back();
+        /* printf("pre_obj: %s\n", pre_obj.c_str()); */
         strings_types_[pre_obj]->obj_->kvs_[key] =
             *strings_types_[token.token_];
       }
-      if (parents.back() == "array") {
-        const std::string &pre_arr = parents.back();
+
+      if (std::regex_match(parents.back(), array_match)) {
+        const std::string pre_arr = parents.back();
+
+        /* printf("pre_arr: %s\n", pre_arr.c_str()); */
 
         strings_types_[pre_arr]->arr_->vals_.emplace_back(
             *strings_types_[token.token_]);

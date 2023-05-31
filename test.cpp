@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <iostream>
 #include <memory>
+#include <regex>
 #include <string>
 
 class A {
@@ -31,6 +32,14 @@ int main() {
   A a = *aptr;
 
   a.func();
+
+  std::regex array_match(R"(Aray[0-9]*)");
+
+  if (std::regex_match("Array1111", array_match)) {
+    printf("true\n");
+  } else {
+    printf("false\n");
+  }
 
   return 0;
 }

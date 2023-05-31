@@ -36,7 +36,7 @@ public:
 
   Token &Peek() {
     if (idx_ < tokens_.size()) {
-      printf("parents: \n");
+      printf("parents::");
       for (auto &str : parents) {
         printf("%s->", str.c_str());
       }
@@ -94,10 +94,18 @@ public:
     printf("\n");
   }
 
-  // std::unordered_map<std::string, std::unique_ptr<json_data::Value>>
-  // getStringsTypes() {
-  //   return strings_types_;
-  // }
+  std::unordered_map<std::string, std::unique_ptr<json_data::Value>>
+  getStringsTypes() {
+
+    std::unordered_map<std::string, std::unique_ptr<json_data::Value>>
+        strings_types;
+
+    for (auto &[first, second] : strings_types_) {
+      strings_types[first] = std::move(second);
+    }
+
+    return strings_types;
+  }
 
 private:
   std::vector<Token> tokens_;
@@ -108,6 +116,7 @@ private:
   std::vector<std::string> parents;
   int objects_id = 0;
   int arrays_id = 0;
+  std::regex array_match = std::regex(R"(Array[0-9]*)");
 };
 
 #endif // !_PARSER_NEW_
