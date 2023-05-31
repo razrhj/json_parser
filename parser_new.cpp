@@ -154,18 +154,19 @@ ReturnState Parser::Value() {
 ReturnState Parser::Object() {
 
   const std::string obj = "Object" + std::to_string(objects_id);
-  parents.emplace_back(obj);
   objects_id++;
 
   strings_types_[obj] = std::unique_ptr<json_data::Value>(
       new json_data::Value(parents, TokenType::Object, json_data::Object()));
+
+  parents.emplace_back(obj);
 
   if (LeftBrace() == ReturnState::Success) {
     if (RightBrace() == ReturnState::Success) {
 
       parents.pop_back();
 
-      if (parents.back() == "Key") {
+      if (std::regex_match(parents.back(), key_match)) {
 
         /* printf("parents:&&&&&&&&&"); */
         /* for (auto &parent : parents) { */
@@ -173,9 +174,8 @@ ReturnState Parser::Object() {
         /* } */
         /* printf("\n"); */
 
-        strings_types_[obj]->parents_.back().pop_back();
+        // strings_types_[obj]->parents_.back().pop_back();
 
-        parents.pop_back();
         const std::string key = parents.back();
         /* printf("key: %s\n", key.c_str()); */
         parents.pop_back();
@@ -211,7 +211,7 @@ ReturnState Parser::Object() {
 
         parents.pop_back();
 
-        if (parents.back() == "Key") {
+        if (std::regex_match(parents.back(), key_match)) {
 
           /* printf("parents:&&&&&&&&&"); */
           /* for (auto &parent : parents) { */
@@ -219,9 +219,8 @@ ReturnState Parser::Object() {
           /* } */
           /* printf("\n"); */
 
-          strings_types_[obj]->parents_.back().pop_back();
+          // strings_types_[obj]->parents_.back().pop_back();
 
-          parents.pop_back();
           const std::string key = parents.back();
           /* printf("key: %s\n", key.c_str()); */
           parents.pop_back();
@@ -252,18 +251,19 @@ ReturnState Parser::Object() {
 ReturnState Parser::Array() {
 
   const std::string arr = "Array" + std::to_string(arrays_id);
-  parents.emplace_back(arr);
   arrays_id++;
 
   strings_types_[arr] = std::unique_ptr<json_data::Value>(
       new json_data::Value(parents, TokenType::Array, json_data::Array()));
+
+  parents.emplace_back(arr);
 
   if (LeftBracket() == ReturnState::Success) {
     if (RightBracket() == ReturnState::Success) {
 
       parents.pop_back();
 
-      if (parents.back() == "Key") {
+      if (std::regex_match(parents.back(), key_match)) {
 
         /* printf("parents:&&&&&&&&&"); */
         /* for (auto &parent : parents) { */
@@ -271,9 +271,8 @@ ReturnState Parser::Array() {
         /* } */
         /* printf("\n"); */
 
-        strings_types_[arr]->parents_.back().pop_back();
+        // strings_types_[arr]->parents_.back().pop_back();
 
-        parents.pop_back();
         const std::string key = parents.back();
         /* printf("key: %s\n", key.c_str()); */
         parents.pop_back();
@@ -312,7 +311,7 @@ ReturnState Parser::Array() {
 
         parents.pop_back();
 
-        if (parents.back() == "Key") {
+        if (std::regex_match(parents.back(), key_match)) {
 
           /* printf("parents:&&&&&&&&&"); */
           /* for (auto &parent : parents) { */
@@ -320,9 +319,8 @@ ReturnState Parser::Array() {
           /* } */
           /* printf("\n"); */
 
-          strings_types_[arr]->parents_.back().pop_back();
+          // strings_types_[arr]->parents_.back().pop_back();
 
-          parents.pop_back();
           const std::string key = parents.back();
           /* printf("key: %s\n", key.c_str()); */
           parents.pop_back();
@@ -386,7 +384,7 @@ ReturnState Parser::Number() {
       strings_types_[token.token_]->parents_.emplace_back(parents);
     }
 
-    if (parents.back() == "Key") {
+    if (std::regex_match(parents.back(), key_match)) {
 
       /* printf("parents:&&&&&&&&&"); */
       /* for (auto &parent : parents) { */
@@ -394,9 +392,8 @@ ReturnState Parser::Number() {
       /* } */
       /* printf("\n"); */
 
-      strings_types_[token.token_]->parents_.back().pop_back();
+      // strings_types_[token.token_]->parents_.back().pop_back();
 
-      parents.pop_back();
       std::string key = parents.back();
       /* printf("key: %s\n", key.c_str()); */
       parents.pop_back();
@@ -441,7 +438,7 @@ ReturnState Parser::Boolean() {
       strings_types_[token.token_]->parents_.emplace_back(parents);
     }
 
-    if (parents.back() == "Key") {
+    if (std::regex_match(parents.back(), key_match)) {
 
       /* printf("parents:&&&&&&&&&"); */
       /* for (auto &parent : parents) { */
@@ -449,9 +446,8 @@ ReturnState Parser::Boolean() {
       /* } */
       /* printf("\n"); */
 
-      strings_types_[token.token_]->parents_.back().pop_back();
+      // strings_types_[token.token_]->parents_.back().pop_back();
 
-      parents.pop_back();
       std::string key = parents.back();
       /* printf("key: %s\n", key.c_str()); */
       parents.pop_back();
@@ -496,7 +492,7 @@ ReturnState Parser::Null() {
       strings_types_[token.token_]->parents_.emplace_back(parents);
     }
 
-    if (parents.back() == "Key") {
+    if (std::regex_match(parents.back(), key_match)) {
 
       /* printf("parents:&&&&&&&&&"); */
       /* for (auto &parent : parents) { */
@@ -504,9 +500,8 @@ ReturnState Parser::Null() {
       /* } */
       /* printf("\n"); */
 
-      strings_types_[token.token_]->parents_.back().pop_back();
+      // strings_types_[token.token_]->parents_.back().pop_back();
 
-      parents.pop_back();
       std::string key = parents.back();
       /* printf("key: %s\n", key.c_str()); */
       parents.pop_back();
@@ -551,7 +546,7 @@ ReturnState Parser::String(const std::string caller) {
       }
 
       parents.emplace_back("<" + token.token_ + ">");
-      parents.emplace_back("Key");
+      // parents.emplace_back("Key");
     }
 
     if (caller == "Primary") {
@@ -566,7 +561,7 @@ ReturnState Parser::String(const std::string caller) {
         strings_types_[token.token_]->parents_.emplace_back(parents);
       }
 
-      if (parents.back() == "Key") {
+      if (std::regex_match(parents.back(), key_match)) {
 
         /* printf("parents:&&&&&&&&&"); */
         /* for (auto &parent : parents) { */
@@ -574,9 +569,8 @@ ReturnState Parser::String(const std::string caller) {
         /* } */
         /* printf("\n"); */
 
-        strings_types_[token.token_]->parents_.back().pop_back();
+        // strings_types_[token.token_]->parents_.back().pop_back();
 
-        parents.pop_back();
         const std::string key = parents.back();
         /* printf("key: %s\n", key.c_str()); */
         parents.pop_back();

@@ -41,5 +41,13 @@ int main() {
     printf("false\n");
   }
 
+  std::regex key_match(R"(<.*>)");
+
+  if (std::regex_match("<adfHI>", key_match)) {
+    printf("true\n");
+  } else {
+    printf("false\n");
+  }
+
   return 0;
 }
