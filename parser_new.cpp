@@ -8,7 +8,8 @@
 #include <string>
 
 ReturnState Parser::LeftBrace() {
-  if (Peek().type_ == TokenType::LeftBrace) {
+  Token token = Peek();
+  if (token.type_ == TokenType::LeftBrace) {
 
     Advance();
 
@@ -20,7 +21,8 @@ ReturnState Parser::LeftBrace() {
 }
 
 ReturnState Parser::RightBrace() {
-  if (Peek().type_ == TokenType::RightBrace) {
+  Token token = Peek();
+  if (token.type_ == TokenType::RightBrace) {
 
     Advance();
 
@@ -32,7 +34,8 @@ ReturnState Parser::RightBrace() {
 }
 
 ReturnState Parser::LeftBracket() {
-  if (Peek().type_ == TokenType::LeftBracket) {
+  Token token = Peek();
+  if (token.type_ == TokenType::LeftBracket) {
 
     Advance();
 
@@ -44,7 +47,8 @@ ReturnState Parser::LeftBracket() {
 }
 
 ReturnState Parser::RightBracket() {
-  if (Peek().type_ == TokenType::RightBracket) {
+  Token token = Peek();
+  if (token.type_ == TokenType::RightBracket) {
 
     Advance();
 
@@ -56,7 +60,8 @@ ReturnState Parser::RightBracket() {
 }
 
 ReturnState Parser::Comma() {
-  if (Peek().type_ == TokenType::Comma) {
+  Token token = Peek();
+  if (token.type_ == TokenType::Comma) {
 
     Advance();
 
@@ -68,7 +73,8 @@ ReturnState Parser::Comma() {
 }
 
 ReturnState Parser::Colon() {
-  if (Peek().type_ == TokenType::Colon) {
+  Token token = Peek();
+  if (token.type_ == TokenType::Colon) {
 
     Advance();
 
@@ -80,7 +86,8 @@ ReturnState Parser::Colon() {
 }
 
 ReturnState Parser::Quote() {
-  if (Peek().type_ == TokenType::Quote) {
+  Token token = Peek();
+  if (token.type_ == TokenType::Quote) {
 
     Advance();
 
@@ -149,11 +156,9 @@ ReturnState Parser::Object() {
   const std::string obj = "Object" + std::to_string(objects_id);
   parents.emplace_back(obj);
   objects_id++;
+
   strings_types_[obj] = std::unique_ptr<json_data::Value>(
-      new json_data::Value(parents, "Object", json_data::Object()));
-  // strings_types_[obj] = new json_data::Value();
-  // strings_types_[obj]->type_ = "Object";
-  // strings_types_[obj]->obj_ = new json_data::Object();
+      new json_data::Value(parents, TokenType::Object, json_data::Object()));
 
   if (LeftBrace() == ReturnState::Success) {
     if (RightBrace() == ReturnState::Success) {
@@ -162,18 +167,24 @@ ReturnState Parser::Object() {
 
       if (parents.back() == "Key") {
 
+        /* printf("parents:&&&&&&&&&"); */
+        /* for (auto &parent : parents) { */
+        /*   printf("->%s", parent.c_str()); */
+        /* } */
+        /* printf("\n"); */
+
         strings_types_[obj]->parents_.back().pop_back();
 
-        const std::string &key = parents.back();
         parents.pop_back();
+        const std::string key = parents.back();
+        /* printf("key: %s\n", key.c_str()); */
         parents.pop_back();
-
         const std::string pre_obj = parents.back();
-
+        /* printf("pre_obj: %s\n", pre_obj.c_str()); */
         strings_types_[pre_obj]->obj_->kvs_[key] = *strings_types_[obj];
       }
-      if (parents.back() == "Array") {
-        const std::string &pre_arr = parents.back();
+      if (std::regex_match(parents.back(), array_match)) {
+        const std::string pre_arr = parents.back();
 
         strings_types_[pre_arr]->arr_->vals_.emplace_back(*strings_types_[obj]);
       }
@@ -195,25 +206,31 @@ ReturnState Parser::Object() {
           return ReturnState::ObjectError;
         }
       }
-      if (Peek().type_ != error_.type_ &&
-          RightBrace() == ReturnState::Success) {
+      Token token = Peek();
+      if (token.type_ != error_.type_ && RightBrace() == ReturnState::Success) {
 
         parents.pop_back();
 
         if (parents.back() == "Key") {
 
+          /* printf("parents:&&&&&&&&&"); */
+          /* for (auto &parent : parents) { */
+          /*   printf("->%s", parent.c_str()); */
+          /* } */
+          /* printf("\n"); */
+
           strings_types_[obj]->parents_.back().pop_back();
 
-          const std::string &key = parents.back();
           parents.pop_back();
+          const std::string key = parents.back();
+          /* printf("key: %s\n", key.c_str()); */
           parents.pop_back();
-
           const std::string pre_obj = parents.back();
-
+          /* printf("pre_obj: %s\n", pre_obj.c_str()); */
           strings_types_[pre_obj]->obj_->kvs_[key] = *strings_types_[obj];
         }
-        if (parents.back() == "Array") {
-          const std::string &pre_arr = parents.back();
+        if (std::regex_match(parents.back(), array_match)) {
+          const std::string pre_arr = parents.back();
 
           strings_types_[pre_arr]->arr_->vals_.emplace_back(
               *strings_types_[obj]);
@@ -237,11 +254,9 @@ ReturnState Parser::Array() {
   const std::string arr = "Array" + std::to_string(arrays_id);
   parents.emplace_back(arr);
   arrays_id++;
+
   strings_types_[arr] = std::unique_ptr<json_data::Value>(
-      new json_data::Value(parents, "Array", json_data::Array()));
-  // strings_types_[arr] = new json_data::Value();
-  // strings_types_[arr]->type_ = "Array";
-  // strings_types_[arr]->arr_ = new json_data::Array();
+      new json_data::Value(parents, TokenType::Array, json_data::Array()));
 
   if (LeftBracket() == ReturnState::Success) {
     if (RightBracket() == ReturnState::Success) {
@@ -250,19 +265,26 @@ ReturnState Parser::Array() {
 
       if (parents.back() == "Key") {
 
+        /* printf("parents:&&&&&&&&&"); */
+        /* for (auto &parent : parents) { */
+        /*   printf("->%s", parent.c_str()); */
+        /* } */
+        /* printf("\n"); */
+
         strings_types_[arr]->parents_.back().pop_back();
 
-        const std::string &key = parents.back();
         parents.pop_back();
+        const std::string key = parents.back();
+        /* printf("key: %s\n", key.c_str()); */
         parents.pop_back();
 
-        const std::string &pre_obj = parents.back();
-
+        const std::string pre_obj = parents.back();
+        /* printf("pre_obj: %s\n", pre_obj.c_str()); */
         strings_types_[pre_obj]->obj_->kvs_[key] = *strings_types_[arr];
       }
-      if (parents.back() == "Array") {
+      if (std::regex_match(parents.back(), array_match)) {
 
-        const std::string &pre_arr = parents.back();
+        const std::string pre_arr = parents.back();
 
         strings_types_[pre_arr]->arr_->vals_.emplace_back(*strings_types_[arr]);
       }
@@ -284,26 +306,34 @@ ReturnState Parser::Array() {
           return ReturnState::ArrayError;
         }
       }
-      if (Peek().type_ != error_.type_ &&
+      Token token = Peek();
+      if (token.type_ != error_.type_ &&
           RightBracket() == ReturnState::Success) {
 
         parents.pop_back();
 
         if (parents.back() == "Key") {
 
+          /* printf("parents:&&&&&&&&&"); */
+          /* for (auto &parent : parents) { */
+          /*   printf("->%s", parent.c_str()); */
+          /* } */
+          /* printf("\n"); */
+
           strings_types_[arr]->parents_.back().pop_back();
 
-          const std::string &key = parents.back();
           parents.pop_back();
+          const std::string key = parents.back();
+          /* printf("key: %s\n", key.c_str()); */
           parents.pop_back();
 
-          const std::string &pre_obj = parents.back();
-
+          const std::string pre_obj = parents.back();
+          /* printf("pre_obj: %s\n", pre_obj.c_str()); */
           strings_types_[pre_obj]->obj_->kvs_[key] = *strings_types_[arr];
         }
-        if (parents.back() == "Array") {
+        if (std::regex_match(parents.back(), array_match)) {
 
-          const std::string &pre_arr = parents.back();
+          const std::string pre_arr = parents.back();
 
           strings_types_[pre_arr]->arr_->vals_.emplace_back(
               *strings_types_[arr]);
@@ -338,42 +368,50 @@ ReturnState Parser::Primary() {
 }
 
 ReturnState Parser::Number() {
+  Token token = Peek();
   const std::regex number_regex(R"(-?(0|[1-9][0-9]*)(\.[0-9]+)?)");
-  if (std::regex_match(Peek().token_, number_regex)) {
-    Peek().type_ = TokenType::Number;
+  if (std::regex_match(token.token_, number_regex)) {
+    token.type_ = TokenType::Number;
   }
 
-  if (Peek().type_ == TokenType::Number) {
+  if (token.type_ == TokenType::Number) {
 
-    if (!strings_types_.count(Peek().token_)) {
+    if (!strings_types_.count(token.token_)) {
 
-      strings_types_[Peek().token_] = std::unique_ptr<json_data::Value>(
-          new json_data::Value(parents, "Number", Peek().token_));
+      strings_types_[token.token_] = std::unique_ptr<json_data::Value>(
+          new json_data::Value(parents, TokenType::Number, token.token_));
 
     } else {
 
-      strings_types_[Peek().token_]->parents_.emplace_back(parents);
+      strings_types_[token.token_]->parents_.emplace_back(parents);
     }
 
     if (parents.back() == "Key") {
 
-      strings_types_[Peek().token_]->parents_.back().pop_back();
+      /* printf("parents:&&&&&&&&&"); */
+      /* for (auto &parent : parents) { */
+      /*   printf("->%s", parent.c_str()); */
+      /* } */
+      /* printf("\n"); */
 
-      std::string &key = parents.back();
+      strings_types_[token.token_]->parents_.back().pop_back();
+
       parents.pop_back();
+      std::string key = parents.back();
+      /* printf("key: %s\n", key.c_str()); */
       parents.pop_back();
 
-      std::string &pre_obj = parents.back();
-
-      strings_types_[pre_obj]->obj_->kvs_[key] = *strings_types_[Peek().token_];
+      std::string pre_obj = parents.back();
+      /* printf("pre_obj: %s\n", pre_obj.c_str()); */
+      strings_types_[pre_obj]->obj_->kvs_[key] = *strings_types_[token.token_];
     }
 
-    if (parents.back() == "Array") {
+    if (std::regex_match(parents.back(), array_match)) {
 
       const std::string pre_arr = parents.back();
 
-      strings_types_[Peek().token_]->arr_->vals_.emplace_back(
-          *strings_types_[Peek().token_]);
+      strings_types_[pre_arr]->arr_->vals_.emplace_back(
+          *strings_types_[token.token_]);
     }
 
     Advance();
@@ -386,41 +424,49 @@ ReturnState Parser::Number() {
 }
 
 ReturnState Parser::Boolean() {
-  if (Peek().token_ == "true" || Peek().token_ == "false") {
-    Peek().type_ = TokenType::Boolean;
+  Token token = Peek();
+  if (token.token_ == "true" || token.token_ == "false") {
+    token.type_ = TokenType::Boolean;
   }
 
-  if (Peek().type_ == TokenType::Boolean) {
+  if (token.type_ == TokenType::Boolean) {
 
-    if (!strings_types_.count(Peek().token_)) {
+    if (!strings_types_.count(token.token_)) {
 
-      strings_types_[Peek().token_] = std::unique_ptr<json_data::Value>(
-          new json_data::Value(parents, "Boolean", Peek().token_));
+      strings_types_[token.token_] = std::unique_ptr<json_data::Value>(
+          new json_data::Value(parents, TokenType::Boolean, token.token_));
 
     } else {
 
-      strings_types_[Peek().token_]->parents_.emplace_back(parents);
+      strings_types_[token.token_]->parents_.emplace_back(parents);
     }
 
     if (parents.back() == "Key") {
 
-      strings_types_[Peek().token_]->parents_.back().pop_back();
+      /* printf("parents:&&&&&&&&&"); */
+      /* for (auto &parent : parents) { */
+      /*   printf("->%s", parent.c_str()); */
+      /* } */
+      /* printf("\n"); */
 
-      std::string &key = parents.back();
+      strings_types_[token.token_]->parents_.back().pop_back();
+
       parents.pop_back();
+      std::string key = parents.back();
+      /* printf("key: %s\n", key.c_str()); */
       parents.pop_back();
 
-      std::string &pre_obj = parents.back();
-
-      strings_types_[pre_obj]->obj_->kvs_[key] = *strings_types_[Peek().token_];
+      std::string pre_obj = parents.back();
+      /* printf("pre_obj: %s\n", pre_obj.c_str()); */
+      strings_types_[pre_obj]->obj_->kvs_[key] = *strings_types_[token.token_];
     }
 
-    if (parents.back() == "Array") {
+    if (std::regex_match(parents.back(), array_match)) {
 
       const std::string pre_arr = parents.back();
 
-      strings_types_[Peek().token_]->arr_->vals_.emplace_back(
-          *strings_types_[Peek().token_]);
+      strings_types_[pre_arr]->arr_->vals_.emplace_back(
+          *strings_types_[token.token_]);
     }
 
     Advance();
@@ -433,41 +479,50 @@ ReturnState Parser::Boolean() {
 }
 
 ReturnState Parser::Null() {
-  if (Peek().token_ == "null") {
-    Peek().type_ = TokenType::Null;
+  Token token = Peek();
+  if (token.token_ == "null") {
+    token.type_ = TokenType::Null;
   }
 
-  if (Peek().type_ == TokenType::Null) {
+  if (token.type_ == TokenType::Null) {
 
-    if (!strings_types_.count(Peek().token_)) {
+    if (!strings_types_.count(token.token_)) {
 
-      strings_types_[Peek().token_] = std::unique_ptr<json_data::Value>(
-          new json_data::Value(parents, "Null", Peek().token_));
+      strings_types_[token.token_] = std::unique_ptr<json_data::Value>(
+          new json_data::Value(parents, TokenType::Null, token.token_));
 
     } else {
 
-      strings_types_[Peek().token_]->parents_.emplace_back(parents);
+      strings_types_[token.token_]->parents_.emplace_back(parents);
     }
 
     if (parents.back() == "Key") {
 
-      strings_types_[Peek().token_]->parents_.back().pop_back();
+      /* printf("parents:&&&&&&&&&"); */
+      /* for (auto &parent : parents) { */
+      /*   printf("->%s", parent.c_str()); */
+      /* } */
+      /* printf("\n"); */
 
-      std::string &pre_obj = parents.back();
+      strings_types_[token.token_]->parents_.back().pop_back();
 
-      std::string &key = parents.back();
       parents.pop_back();
+      std::string key = parents.back();
+      /* printf("key: %s\n", key.c_str()); */
       parents.pop_back();
-
-      strings_types_[pre_obj]->obj_->kvs_[key] = *strings_types_[Peek().token_];
+      std::string pre_obj = parents.back();
+      /* printf("pre_obj: %s\n", pre_obj.c_str()); */
+      strings_types_[pre_obj]->obj_->kvs_[key] = *strings_types_[token.token_];
     }
 
-    if (parents.back() == "Array") {
+    if (std::regex_match(parents.back(), array_match)) {
 
       const std::string pre_arr = parents.back();
 
-      strings_types_[Peek().token_]->arr_->vals_.emplace_back(
-          *strings_types_[Peek().token_]);
+      /* printf("pre_arr: %s\n", pre_arr.c_str()); */
+
+      strings_types_[pre_arr]->arr_->vals_.emplace_back(
+          *strings_types_[token.token_]);
     }
 
     Advance();
@@ -480,54 +535,65 @@ ReturnState Parser::Null() {
 }
 
 ReturnState Parser::String(const std::string caller) {
-  if (Peek().type_ == TokenType::String) {
+  Token token = Peek();
+  if (token.type_ == TokenType::String) {
 
     if (caller == "Key") {
 
-      if (!strings_types_.count(Peek().token_)) {
+      if (!strings_types_.count(token.token_)) {
 
-        strings_types_[Peek().token_] = std::unique_ptr<json_data::Value>(
-            new json_data::Value(parents, "Key", Peek().token_));
+        strings_types_[token.token_] = std::unique_ptr<json_data::Value>(
+            new json_data::Value(parents, TokenType::Key, token.token_));
 
       } else {
 
-        strings_types_[Peek().token_]->parents_.emplace_back(parents);
+        strings_types_[token.token_]->parents_.emplace_back(parents);
       }
 
-      parents.emplace_back("<" + Peek().token_ + ">");
+      parents.emplace_back("<" + token.token_ + ">");
       parents.emplace_back("Key");
     }
 
     if (caller == "Primary") {
 
-      if (!strings_types_.count(Peek().token_)) {
+      if (!strings_types_.count(token.token_)) {
 
-        strings_types_[Peek().token_] = std::unique_ptr<json_data::Value>(
-            new json_data::Value(parents, "String", Peek().token_));
+        strings_types_[token.token_] = std::unique_ptr<json_data::Value>(
+            new json_data::Value(parents, TokenType::String, token.token_));
 
       } else {
 
-        strings_types_[Peek().token_]->parents_.emplace_back(parents);
+        strings_types_[token.token_]->parents_.emplace_back(parents);
       }
 
       if (parents.back() == "Key") {
 
-        strings_types_[Peek().token_]->parents_.back().pop_back();
+        /* printf("parents:&&&&&&&&&"); */
+        /* for (auto &parent : parents) { */
+        /*   printf("->%s", parent.c_str()); */
+        /* } */
+        /* printf("\n"); */
 
-        const std::string &key = parents.back();
+        strings_types_[token.token_]->parents_.back().pop_back();
+
         parents.pop_back();
+        const std::string key = parents.back();
+        /* printf("key: %s\n", key.c_str()); */
         parents.pop_back();
 
-        const std::string &pre_obj = parents.back();
-
+        const std::string pre_obj = parents.back();
+        /* printf("pre_obj: %s\n", pre_obj.c_str()); */
         strings_types_[pre_obj]->obj_->kvs_[key] =
-            *strings_types_[Peek().token_];
+            *strings_types_[token.token_];
       }
-      if (parents.back() == "Array") {
-        const std::string &pre_arr = parents.back();
+
+      if (std::regex_match(parents.back(), array_match)) {
+        const std::string pre_arr = parents.back();
+
+        /* printf("pre_arr: %s\n", pre_arr.c_str()); */
 
         strings_types_[pre_arr]->arr_->vals_.emplace_back(
-            *strings_types_[Peek().token_]);
+            *strings_types_[token.token_]);
       }
     }
 
