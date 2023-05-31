@@ -116,8 +116,8 @@ private:
   std::vector<std::string> parents;
   int objects_id = 0;
   int arrays_id = 0;
-  std::regex array_match = std::regex(R"(Array[0-9]*)");
-  std::regex key_match = std::regex(R"(<.*>)");
+  std::regex array_match = std::regex(R"(Array[0-9]+)");
+  std::regex key_match = std::regex(R"(<.+>)");
 };
 
 #endif // !_PARSER_NEW_
