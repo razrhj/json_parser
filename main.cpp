@@ -23,11 +23,13 @@ int main() {
 
   q.setStringsType(p.getStringsTypes());
 
-  if (q.IsBoolean("true")) {
+  if (q.isBoolean("true")) {
     for (auto &str : q.getBoolean("true")) {
       printf("%s\n", str.c_str());
     }
   }
+
+  q.getArray("Array1");
 
   return 0;
 }

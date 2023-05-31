@@ -3,6 +3,7 @@
 
 #include "json_data_new.hpp"
 #include "token_type.hpp"
+#include <cstdio>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -17,36 +18,104 @@ public:
   Query &operator=(const Query &) = default;
   ~Query() {}
 
-  bool IsKey(const std::string &str) {
+  bool isKey(const std::string &str) {
     return strings_types_[str]->type_ == TokenType::Key;
   }
 
-  bool IsObject(const std::string &str) {
+  bool isObject(const std::string &str) {
     return strings_types_[str]->type_ == TokenType::Object;
   }
 
-  bool IsArray(const std::string &str) {
+  bool isArray(const std::string &str) {
     return strings_types_[str]->type_ == TokenType::Array;
   }
 
-  bool IsNumber(const std::string &str) {
+  bool isNumber(const std::string &str) {
     return strings_types_[str]->type_ == TokenType::Number;
   }
 
-  bool IsBoolean(const std::string &str) {
+  bool isBoolean(const std::string &str) {
     return strings_types_[str]->type_ == TokenType::Boolean;
   }
 
-  bool IsNull(const std::string &str) {
+  bool isNull(const std::string &str) {
     return strings_types_[str]->type_ == TokenType::Null;
   }
 
-  bool IsString(const std::string &str) {
+  bool isString(const std::string &str) {
     return strings_types_[str]->type_ == TokenType::String;
   }
 
+  void printValue(json_data::Value &value) {
+    /* printf("type: %s\n", TokenTypeEnumName(value.type_).c_str()); */
+    switch (value.type_) {
+
+    case TokenType::Number:
+    case TokenType::String:
+    case TokenType::Boolean:
+    case TokenType::Null:
+      printf("%s\n", value.basic_.c_str());
+      break;
+    case TokenType::Object:
+      if (value.obj_) {
+        printObject(*value.obj_);
+      } else {
+        printf("nullptr\n");
+      }
+      break;
+    case TokenType::Array:
+      if (value.arr_) {
+        printArray(*value.arr_);
+      }
+      break;
+    default:
+      break;
+    }
+  }
+
+  void printObject(json_data::Object &obj) {
+    if (!obj.empty_) {
+      printf("Object size: %lu\n", obj.kvs_.size());
+      for (auto &[key, value] : obj.kvs_) {
+        printf("\"%s\" : ", key.c_str());
+        printValue(value);
+        printf("\n");
+      }
+    }
+  }
+
+  void printArray(json_data::Array &arr) {
+    if (!arr.empty_) {
+      printf("Array size: %lu\n", arr.vals_.size());
+      for (auto &value : arr.vals_) {
+        printValue(value);
+        printf("\n");
+      }
+    }
+  }
+
+  json_data::Object getObject(const std::string &str) {
+    if (!isObject(str)) {
+      return json_data::Object();
+    }
+
+    printObject(*strings_types_[str]->obj_);
+
+    return *strings_types_[str]->obj_;
+  }
+
+  json_data::Array getArray(const std::string &str) {
+    if (!isArray(str)) {
+      return json_data::Array();
+    }
+
+    printArray(*strings_types_[str]->arr_);
+
+    return *strings_types_[str]->arr_;
+  }
+
   std::vector<std::string> getString(const std::string &str) {
-    if (!IsString(str) && !IsKey(str)) {
+    if (!isString(str) && !isKey(str)) {
       return {};
     }
 
@@ -64,7 +133,7 @@ public:
   }
 
   std::vector<std::string> getNumber(const std::string &str) {
-    if (!IsNumber(str)) {
+    if (!isNumber(str)) {
       return {};
     }
 
@@ -83,7 +152,7 @@ public:
 
   std::vector<std::string> getBoolean(const std::string &str) {
 
-    if (!IsBoolean(str)) {
+    if (!isBoolean(str)) {
       return {};
     }
 
@@ -102,7 +171,7 @@ public:
 
   std::vector<std::string> getNull(const std::string &str) {
 
-    if (!IsNull(str)) {
+    if (!isNull(str)) {
       return {};
     }
 

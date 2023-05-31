@@ -182,6 +182,9 @@ ReturnState Parser::Object() {
         const std::string pre_obj = parents.back();
         /* printf("pre_obj: %s\n", pre_obj.c_str()); */
         strings_types_[pre_obj]->obj_->kvs_[key] = *strings_types_[obj];
+        strings_types_[pre_obj]->obj_->kvs_[key].obj_ =
+            std::unique_ptr<json_data::Object>(
+                new json_data::Object(*strings_types_[obj]->obj_));
       }
       if (std::regex_match(parents.back(), array_match)) {
         const std::string pre_arr = parents.back();
@@ -209,6 +212,8 @@ ReturnState Parser::Object() {
       Token token = Peek();
       if (token.type_ != error_.type_ && RightBrace() == ReturnState::Success) {
 
+        strings_types_[obj]->obj_->empty_ = false;
+
         parents.pop_back();
 
         if (std::regex_match(parents.back(), key_match)) {
@@ -226,7 +231,19 @@ ReturnState Parser::Object() {
           parents.pop_back();
           const std::string pre_obj = parents.back();
           /* printf("pre_obj: %s\n", pre_obj.c_str()); */
+
+          /* json_data::Value &value = strings_types_[pre_obj]->obj_->kvs_[key];
+           */
           strings_types_[pre_obj]->obj_->kvs_[key] = *strings_types_[obj];
+          strings_types_[pre_obj]->obj_->kvs_[key].obj_ =
+              std::unique_ptr<json_data::Object>(
+                  new json_data::Object(*strings_types_[obj]->obj_));
+
+          if (obj == "Object4") {
+            if (!strings_types_[pre_obj]->obj_->kvs_[key].obj_) {
+              printf("nullptr\n");
+            }
+          }
         }
         if (std::regex_match(parents.back(), array_match)) {
           const std::string pre_arr = parents.back();
@@ -280,6 +297,9 @@ ReturnState Parser::Array() {
         const std::string pre_obj = parents.back();
         /* printf("pre_obj: %s\n", pre_obj.c_str()); */
         strings_types_[pre_obj]->obj_->kvs_[key] = *strings_types_[arr];
+        strings_types_[pre_obj]->obj_->kvs_[key].arr_ =
+            std::unique_ptr<json_data::Array>(
+                new json_data::Array(*strings_types_[arr]->arr_));
       }
       if (std::regex_match(parents.back(), array_match)) {
 
@@ -309,6 +329,8 @@ ReturnState Parser::Array() {
       if (token.type_ != error_.type_ &&
           RightBracket() == ReturnState::Success) {
 
+        strings_types_[arr]->arr_->empty_ = false;
+
         parents.pop_back();
 
         if (std::regex_match(parents.back(), key_match)) {
@@ -328,6 +350,9 @@ ReturnState Parser::Array() {
           const std::string pre_obj = parents.back();
           /* printf("pre_obj: %s\n", pre_obj.c_str()); */
           strings_types_[pre_obj]->obj_->kvs_[key] = *strings_types_[arr];
+          strings_types_[pre_obj]->obj_->kvs_[key].arr_ =
+              std::unique_ptr<json_data::Array>(
+                  new json_data::Array(*strings_types_[arr]->arr_));
         }
         if (std::regex_match(parents.back(), array_match)) {
 
